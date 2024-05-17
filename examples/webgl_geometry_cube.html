@@ -1,79 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>three.js webgl - geometry - cube</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link type="text/css" rel="stylesheet" href="main.css">
-	</head>
-	<body>
-		<script type="importmap">
-			{
-				"imports": {
-					"three": "../build/three.module.js",
-					"three/addons/": "./jsm/"
-				}
-			}
-		</script>
+<head>
+    <title>three.js webgl - geometry - cube</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="main.css">
+</head>
+<body>
+<script type="importmap">
+    {
+        "imports": {
+            "three": "../build/three.module.js",
+            "three/addons/": "./jsm/"
+        }
+    }
+</script>
 
-		<script type="module">
+<script type="module">
+    import * as THREE from 'three';
 
-			import * as THREE from 'three';
+    let camera, scene, renderer;
+    let mesh;
 
-			let camera, scene, renderer;
-			let mesh;
+    init();
+    animate();
 
-			init();
-			animate();
+    function init() {
+        camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 100 );
+        camera.position.z = 2;
 
-			function init() {
+        scene = new THREE.Scene();
 
-				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 100 );
-				camera.position.z = 2;
+        // Create an array of texture paths for each face
+        const texturePaths = [
+            'textures/face1.jpg',
+            'textures/face2.jpg',
+            'textures/face3.jpg',
+            'textures/face4.jpg',
+            'textures/face5.jpg',
+            'textures/face6.jpg'
+        ];
 
-				scene = new THREE.Scene();
+        // Create an array to hold materials for each face
+        const materials = [];
 
-				const texture = new THREE.TextureLoader().load( 'textures/crate.gif' );
-				texture.colorSpace = THREE.SRGBColorSpace;
+        // Load textures and create materials for each face
+        texturePaths.forEach(path => {
+            const texture = new THREE.TextureLoader().load(path);
+            texture.colorSpace = THREE.SRGBColorSpace;
+            materials.push(new THREE.MeshBasicMaterial({ map: texture }));
+        });
 
-				const geometry = new THREE.BoxGeometry();
-				const material = new THREE.MeshBasicMaterial( { map: texture } );
+        const geometry = new THREE.BoxGeometry();
+        
+        // Apply different materials to each face of the cube
+        const cubeMaterials = [
+            materials[0], // Right side
+            materials[1], // Left side
+            materials[2], // Top side
+            materials[3], // Bottom side
+            materials[4], // Front side
+            materials[5]  // Back side
+        ];
 
-				mesh = new THREE.Mesh( geometry, material );
-				scene.add( mesh );
+        const material = new THREE.MeshFaceMaterial(cubeMaterials);
 
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				document.body.appendChild( renderer.domElement );
+        mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
 
-				//
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-				window.addEventListener( 'resize', onWindowResize );
+        window.addEventListener('resize', onWindowResize);
+    }
 
-			}
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
 
-			function onWindowResize() {
+    function animate() {
+        requestAnimationFrame(animate);
+        mesh.rotation.x += 0.005;
+        mesh.rotation.y += 0.01;
+        renderer.render(scene, camera);
+    }
 
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
+</script>
 
-				renderer.setSize( window.innerWidth, window.innerHeight );
-
-			}
-
-			function animate() {
-
-				requestAnimationFrame( animate );
-
-				mesh.rotation.x += 0.005;
-				mesh.rotation.y += 0.01;
-
-				renderer.render( scene, camera );
-
-			}
-
-		</script>
-
-	</body>
+</body>
 </html>
